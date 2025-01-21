@@ -1,8 +1,8 @@
 /*
 async function signin() {
     try {
-        const username = "houtaib";
-        const password = "Hamza&&11Hamza";
+        const username = "usr";
+        const password = "password";
         const encodedCredentials = btoa(`${username}:${password}`);
         const response = await fetch("https://zone01oujda.ma/api/auth/signin", {
             method: "POST",
@@ -43,7 +43,11 @@ async function showuserdata() {
         amount
         }
         progress {
-        grade}
+        grade
+        }
+        object {
+        
+        }
     }`;
   const token = "jwt token"
   try {
