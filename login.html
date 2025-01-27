@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login Page</title>
     <link rel="stylesheet" href="./login.css">
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
 </head>
 <body>
         <div class="container">
@@ -15,11 +16,27 @@
             </div>
             
             <div class="data-sender">
-                <label for="Email Or Password">Email Or Username:</label>
-                <input type="text">
-                <label for="Password">Password:</label>
-                <input type="text">
-                <button id="login-btn">SING IN</button>
+                <h1>LOGIN</h1>
+                <div class="input-box">
+                    <label for="Email Or Password">Email Or Username:</label>
+                    <input type="text" placeholder="user or email" required>
+                    <i class='bx bxs-user'></i>
+                </div>
+
+                <div class="input-box">
+                    <label for="Password">Password:</label>
+                    <input type="text" placeholder="Password" required>
+                    <i class='bx bxs-lock-alt'></i>
+                </div>
+                
+                <button id="login-btn">Login</button>
+                
+                <div class="register-link">
+                    <p>Dont Have account ?
+                        <a href="learn.zone01oujda.ma">Register</a>
+                    </p>
+                </div>
+
             </div>
             
     </div>

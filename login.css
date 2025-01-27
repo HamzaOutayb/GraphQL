@@ -3,7 +3,6 @@ body {
         justify-content: center; 
         align-items: center;
         min-height: 70vh;
-      
 }
 
 .container {
@@ -12,19 +11,83 @@ body {
     grid-template-columns: 1fr 1fr;
     width: 100%; 
     height: 100%;
+    border-radius: 10px;
+    background: purple;
+    padding: 30px 40px;
 }
   
   .data-sender {
     display: flex;
     flex-direction: column;
-    background-color: lightblue; 
     padding: 20px;
     height: 100%;
     width: 70%;
   }
 
 .Paragraph {
-    background-color: lightgreen;
     padding: 20px;
     height: 100%;
   }
+
+  .data-sender h1 {
+    font-size: 36px;
+    text-align: center;
+  }
+
+  .data-sender .input-box {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    margin: 30px 0px;
+  }
+
+.input-box input {
+  width: 100%;
+  height: 100%;
+  background: transparent;
+  border: none;
+  outline: none;
+  border: 2px solid rbga(255, 255, 255, -2);
+  border-radius: 40px;
+}
+
+.input-box input::placeholder {
+  color: white;
+}
+
+.input-box i {
+  position: absolute;
+  right: 20px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 20px;
+}
+
+.data-sender .btn {
+  width: 100%;
+  height: 45px;
+  background: white;
+  border: none;
+  outline: none;
+  border-radius: 40px;
+  cursor: pointer;
+  font-size: 16px;
+  color: grey;
+  font-weight: 600;
+}
+
+.data-sender .register-link{
+  font-size: 14.5px;
+  text-align: center;
+  margin: 20px 0px 15px;
+}
+
+.register-link p a {
+  color: white;
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.register-link p a:hover {
+  text-decoration: underline;
+}
