@@ -47,22 +47,17 @@ function renderPage(path) {
     render404();
   }
 }
+function setToken(token) {
+  // Remove any surrounding quotes from the token before storing
+  const cleanToken = token.replace(/^"|"$/g, '');
+  localStorage.setItem('jwt_token', cleanToken);
+  console.log("Token set:", cleanToken);
+}
 
-// Home Page
-function renderHome(token) {
-  app.innerHTML = `
-    <header>
-        <div class="Logout-button">
-          <button onclick="navigateTo('/signin')">Logout</button>
-        </div>
-    </header>
-    <h1> Hi Hamza! This Your 01 Dashboard </h1>
-    <section>
-        <svg class="1"></svg>
-        <svg class="2"></svg>
-    </section>
-  `;
-  showUserData(token)
+function getToken() {
+  const token = localStorage.getItem('jwt_token');
+  console.log("getting token", token);
+  return token;
 }
 
 // Sign In Page
@@ -110,14 +105,15 @@ async function signin() {
         "Content-Type": "application/json"
       }
     });
-    const data = await response.json();
+    const token = await response.json();
 
     if (response.ok) {
       isAuthenticated = true;
-      renderHome(data)
+      setToken(token)
+      renderHome()
     } else {
-      console.error("API Error:", data.error || "Unknown error");
-      alert(data.error || "Failed to sign in");
+      console.error("API Error:", token.error || "Unknown error");
+      alert(token.error || "Failed to sign in");
     }
   } catch (err) {
     console.error("Fetch error:", err);
@@ -126,78 +122,50 @@ async function signin() {
 }
 
 // Show User Data after login
-async function showUserData(token) {
-  const query = `
-  query {
-      user {
-          login
-      }
-      transaction {
-          amount
-      }
-      progress {
-          grade
-      }
-            user {
-                login
-                firstName
-                lastName
-                campus
-                auditRatio
-                totalUp
-                totalDown
-                xpTotal: transactions_aggregate(where: {type: {_eq: "xp"}, eventId: {_eq: 56}}) {
-                  aggregate {
-                    sum {
-                      amount
-                    }
-                  }
-                }
-                events(where:{eventId:{_eq:56}}) {
-                  level
-                }
-                xp: transactions(order_by: {createdAt: asc}
-                  where: {type: {_eq: "xp"}, eventId: {_eq: 56}}) {
-                    createdAt
-                    amount
-                    path
-                }
-                finished_projects: groups(where:{group:{status:{_eq:finished}}}) {
-                    group {
-                    path
-                    status
-                  }
-                }
-                current_projects: groups(where:{group:{status:{_eq:working}}}) {
-                    group {
-                    path
-                    status
-                    members {
-                      userLogin
-                    }
-                  }
-                }
-                setup_project: groups(where:{group:{status:{_eq:setup}}}) {
-                    group {
-                    path
-                    status
-                    members {
-                      userLogin
-                    }
-                  }
-                }
-                skills: transactions(
-                    order_by: {type: asc, amount: desc}
-                    distinct_on: [type]
-                    where: {eventId: {_eq: 56}, _and: {type: {_like: "skill_%"}}}
-                ) {
-                    type
-                    amount
-                }
-            }
-        }
-  }`;
-
+async function showUserData() {
+  const token = getToken()
+  if (!token) navigateTo('/signin');
+  const query =`
+     query {
+       user {
+       firstName
+       lastName
+       login
+       auditRatio
+         totalUp
+         totalDown
+         email
+         campus
+         transactions(
+             where: { type: { _like: "skill_%" } }
+             order_by: [{ type: asc }, { amount: desc }]
+             distinct_on: type
+           ) {
+             id
+             type
+             amount
+           }          
+     }
+   
+   transaction(
+     where: {
+ 
+          type: { _eq: "xp" } ,
+          eventId: { _eq: 41 }
+ } 
+   ) {
+     type
+     amount
+     path
+     createdAt
+     eventId
+     object {
+       type
+       name
+     }
+   }
+ }
+     `
   try {
     const response = await fetch('https://learn.zone01oujda.ma/api/graphql-engine/v1/graphql', {
       method: 'POST',
@@ -209,10 +177,9 @@ async function showUserData(token) {
     });
 
     const data = await response.json();
+    
     if (response.ok) {
-      console.log(data);
-
-      console.log("good moring");
+     createthedahsboard(data)
     } else {
       console.error("Error:", data.errors);
     }
@@ -241,3 +208,49 @@ window.onpopstate = function () {
 
 // Initial page load
 renderPage('/singin');
+// Home Page
+function renderHome(token) {
+  app.innerHTML = `
+    <header>
+        <div class="Logout-button">
+          <button onclick="navigateTo('/signin')">Logout</button>
+        </div>
+    </header>
+    <h1 id="login"></h1>
+    
+    <div id="userStats"></div>
+    
+    <h4>User Xp</h4>
+    <div id="user-xp"></div>
+    <section>
+        <svg class="1"></svg>
+        <svg class="2"></svg>
+    </section>
+  `;
+  showUserData(token)
+}
+
+function createthedahsboard(userData){
+  document.getElementById('login').textContent = `Hi ${userData.data.user[0].login}! This Your 01 Dashboard`;
+  document.getElementById('userStats').innerHTML = `
+  <p>Total Up: ${(userData.data.user[0].totalUp / 1000000).toFixed(2)} MB</p>
+  <p>Total Down: ${(userData.data.user[0].totalDown / 1000000).toFixed(2)} MB</p>
+
+  <p >Audit Ratio: <span id="auditRatio">${
+      userData.data.user[0].auditRatio % 1 >= 0.999
+      ? Math.ceil(userData.data.user[0].auditRatio) 
+      : Math.floor(userData.data.user[0].auditRatio * 10) / 10 
+  }</span></p>
+`;
+
+document.getElementById("user-xp").innerHTML = `
+            <div class="user-xpara">${acum} KB</div>
+        `;
+
+    // first chart
+        const transactionsDiv = document.getElementById('transactionsDiv');
+        if (userData.data.user[0].transactions) {
+        const skillsChart = createSkillsChart(userData.data.user[0].transactions);
+        transactionsDiv.appendChild(skillsChart);
+    }
+}
