@@ -210,12 +210,13 @@ window.onpopstate = function () {
 
 // Initial page load
 renderPage('/singin');
+
 // Home Page
 function renderHome(token) {
   app.innerHTML = `
     <header>
         <div class="Logout-button">
-          <button onclick="navigateTo('/signin')">Logout</button>
+          <button onclick="logout()">Logout</button>
         </div>
     </header>
      <span id="username"></span>
@@ -226,16 +227,20 @@ function renderHome(token) {
     <div id="user-xp"></div>
     <div>
     <div id="transactionsDiv"></div>
-        <svg class="2"></svg>
+    <div id="xp-progression"></div>
     </div>
   `;
   try {
     showUserData(token)
   }catch(err){
     console.log(err);
-    
     logout();
   }
+}
+
+function logout() {
+  localStorage.removeItem('jwt_token');
+  navigateTo("/singin")
 }
 
 function createTheDashboard(userData) {
@@ -256,6 +261,11 @@ function createTheDashboard(userData) {
   document.getElementById("user-xp").innerHTML = `
       <div class="user-xpara">${acum} KB</div>
   `;
+  const xp_progression = document.getElementById('xp-progression');
+  if (userData.data.transaction) {
+      const xpGraph = createXPGraph(userData.data.transaction);
+      xp_progression.appendChild(xpGraph);
+  }
 
   const transactionsDiv = document.getElementById('transactionsDiv');
   if (userData.data.user[0].transactions) {
@@ -263,8 +273,122 @@ function createTheDashboard(userData) {
           transactionsDiv.appendChild(skillsChart);
   }
 }
-// horizontal ghraph 
 
+// Add this to your renderContentSec function after the existing code
+function createXPGraph(transactions) {
+  // Sort transactions by date
+  const sortedTransactions = transactions.sort((a, b) => 
+      new Date(a.createdAt) - new Date(b.createdAt)
+  );
+
+  // Calculate cumulative XP
+  // each time how much xp do you have
+  let cumulativeXP = 0;
+  const cumulativeTransactions = sortedTransactions.map(transaction => {
+      cumulativeXP += transaction.amount;
+      return {
+          ...transaction,
+          cumulativeAmount: cumulativeXP
+      };
+  });
+  
+
+  // Calculate graph dimensions
+  const width = 580;
+  const height = 300;
+  const padding = 20;
+  const graphWidth = width - (padding * 2);
+  const graphHeight = height - (padding * 2);
+
+  // Create SVG
+  const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+  svg.setAttribute("viewBox", `20 -30 680 300`);
+  svg.setAttribute("class", "xp-graph");
+  svg.setAttribute("width", width);
+  svg.setAttribute("height", height);
+
+  // Calculate scales using cumulative amounts
+  // xscale space between each point
+  const xScale = graphWidth / (cumulativeTransactions.length - 1);
+  const maxXP = Math.max(...cumulativeTransactions.map(t => t.cumulativeAmount));
+  
+  const yScale = graphHeight / maxXP;
+  
+
+  // Create axes
+  // Y-axis
+  const yAxis = document.createElementNS("http://www.w3.org/2000/svg", "line");
+  yAxis.setAttribute("x1", padding);
+  yAxis.setAttribute("y1", padding);
+  yAxis.setAttribute("x2", padding);
+  yAxis.setAttribute("y2", height - padding);
+  yAxis.setAttribute("stroke", "#666");
+  yAxis.setAttribute("stroke-width", "1");
+  svg.appendChild(yAxis);
+
+  // X-axis
+  const xAxis = document.createElementNS("http://www.w3.org/2000/svg", "line");
+  xAxis.setAttribute("x1", padding);
+  xAxis.setAttribute("y1", height - padding);
+  xAxis.setAttribute("x2", width - padding);
+  xAxis.setAttribute("y2", height - padding);
+  xAxis.setAttribute("stroke", "#666");
+  xAxis.setAttribute("stroke-width", "1");
+  svg.appendChild(xAxis);
+
+  // Create the path data for the line using cumulative amounts
+  let pathData = "M ";
+  const points = cumulativeTransactions.map((t, i) => ({
+      x: padding + (i * xScale),
+      y: height - padding - (t.cumulativeAmount * yScale)
+  }));
+  
+  pathData += points.map(p => `${p.x},${p.y}`).join(" L ");    
+
+  // Create and append the line path
+  const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
+  path.setAttribute("d", pathData);
+  path.setAttribute("stroke", "#4CAF50");
+  path.setAttribute("stroke-width", "1");
+  path.setAttribute("fill", "none");
+  svg.appendChild(path);
+
+  // Add dots and tooltips for each point
+  points.forEach((point, i) => {
+      const transaction = cumulativeTransactions[i]
+
+      const date = new Date(transaction.createdAt);
+      const formattedDate = `${date.getDate()}/${date.getMonth() + 1}`;
+      const currentXPInKB = (transaction.amount / 1000).toFixed(1);
+      const totalXPInKB = (transaction.cumulativeAmount / 1000).toFixed(1);
+
+      const dot = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+      dot.setAttribute("cx", point.x);
+      dot.setAttribute("cy", point.y);
+      dot.setAttribute("r", "2");
+      dot.setAttribute("fill", "#4CAF50");
+
+      const tooltip = document.createElementNS("http://www.w3.org/2000/svg", "title");
+      tooltip.textContent = `${transaction.object.name}\nCurrent XP: ${currentXPInKB}KB\nTotal XP: ${totalXPInKB}KB\nDate: ${formattedDate}`;
+      dot.appendChild(tooltip);
+
+      dot.addEventListener("mouseover", () => {
+          dot.style.cursor = "pointer";
+          dot.setAttribute("r", "4");
+          dot.setAttribute("fill", "#69F0AE");
+      });
+      dot.addEventListener("mouseout", () => {
+          dot.setAttribute("r", "2");
+          dot.setAttribute("fill", "#4CAF50");
+      })
+
+      svg.appendChild(dot)
+  });
+
+  return svg;
+}
+
+// horizontal ghraph 
 function createSkillsChart(transactions) { 
   // Process skills data (trim 'skill_' without accumulating)
   const skillsData = transactions.map(curr => ({
