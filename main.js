@@ -110,7 +110,7 @@ async function signin() {
     if (response.ok) {
       isAuthenticated = true;
       setToken(token)
-      renderHome()
+      navigateTo("/")
     } else {
       console.error("API Error:", token.error || "Unknown error");
       alert(token.error || "Failed to sign in");
