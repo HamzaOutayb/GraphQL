@@ -177,13 +177,15 @@ async function showUserData() {
     });
 
     const data = await response.json();
+    console.log(data,'-----------------------');
     
     if (response.ok) {
-     createthedahsboard(data)
+      createTheDashboard(data)
     } else {
       console.error("Error:", data.errors);
     }
   } catch (err) {
+    console.log(err);
     console.error("Fetch error:", err);
   }
 }
@@ -216,41 +218,116 @@ function renderHome(token) {
           <button onclick="navigateTo('/signin')">Logout</button>
         </div>
     </header>
-    <h1 id="login"></h1>
+     <span id="username"></span>
     
     <div id="userStats"></div>
     
     <h4>User Xp</h4>
     <div id="user-xp"></div>
-    <section>
-        <svg class="1"></svg>
+    <div>
+    <div id="transactionsDiv"></div>
         <svg class="2"></svg>
-    </section>
+    </div>
   `;
-  showUserData(token)
+  try {
+    showUserData(token)
+  }catch(err){
+    console.log(err);
+    
+    logout();
+  }
 }
 
-function createthedahsboard(userData){
-  document.getElementById('login').textContent = `Hi ${userData.data.user[0].login}! This Your 01 Dashboard`;
+function createTheDashboard(userData) {
+  document.getElementById('username').textContent = `Hi ${userData.data.user[0].login}! This is Your 01 Dashboard`;
+
   document.getElementById('userStats').innerHTML = `
-  <p>Total Up: ${(userData.data.user[0].totalUp / 1000000).toFixed(2)} MB</p>
-  <p>Total Down: ${(userData.data.user[0].totalDown / 1000000).toFixed(2)} MB</p>
+      <p>Total Up: ${(userData.data.user[0].totalUp / 1000000).toFixed(2)} MB</p>
+      <p>Total Down: ${(userData.data.user[0].totalDown / 1000000).toFixed(2)} MB</p>
+      <p>Audit Ratio: <span id="auditRatio">${
+          userData.data.user[0].auditRatio % 1 >= 0.999
+              ? Math.ceil(userData.data.user[0].auditRatio)
+              : Math.floor(userData.data.user[0].auditRatio * 10) / 10
+      }</span></p>
+  `;
 
-  <p >Audit Ratio: <span id="auditRatio">${
-      userData.data.user[0].auditRatio % 1 >= 0.999
-      ? Math.ceil(userData.data.user[0].auditRatio) 
-      : Math.floor(userData.data.user[0].auditRatio * 10) / 10 
-  }</span></p>
-`;
+  let acum = userData.data.transaction.reduce((acc, transaction) => acc + transaction.amount, 0);
+  acum = Math.ceil(acum / 1000);
+  document.getElementById("user-xp").innerHTML = `
+      <div class="user-xpara">${acum} KB</div>
+  `;
 
-document.getElementById("user-xp").innerHTML = `
-            <div class="user-xpara">${acum} KB</div>
-        `;
+  const transactionsDiv = document.getElementById('transactionsDiv');
+  if (userData.data.user[0].transactions) {
+          const skillsChart = createSkillsChart(userData.data.user[0].transactions);
+          transactionsDiv.appendChild(skillsChart);
+  }
+}
+// horizontal ghraph 
 
-    // first chart
-        const transactionsDiv = document.getElementById('transactionsDiv');
-        if (userData.data.user[0].transactions) {
-        const skillsChart = createSkillsChart(userData.data.user[0].transactions);
-        transactionsDiv.appendChild(skillsChart);
-    }
+function createSkillsChart(transactions) { 
+  // Process skills data (trim 'skill_' without accumulating)
+  const skillsData = transactions.map(curr => ({
+      skill: curr.type.replace('skill_', ''), 
+      amount: curr.amount
+  }));
+
+  const sortedSkills = skillsData
+      .sort((b, a) => a.amount - b.amount)
+
+  console.log("sortedSkills",sortedSkills);
+  // SVG dimensions
+  const width = 650;
+  const height = 500;
+  const padding = { left: 100, right: 20, top: 20, bottom: 30 };
+  const barHeight = 15;
+  const gap = 15;
+  const scaleFactor = 0.6; // Reduce bar width by 60%
+
+  // Create SVG
+  const svg = document.createElementNS("http://www.w3.org/2000/svg", "svg");
+  svg.setAttribute("width", width);
+  svg.setAttribute("height", height);
+
+  // Create bars and labels
+  sortedSkills.forEach((skill, index) => {
+      const percentage = skill.amount; 
+      const barWidth = ((width - padding.left - padding.right) * percentage / 100) * scaleFactor; // Scale down width
+      const yPosition = padding.top + index * (barHeight + gap)
+
+      // Create bar
+      const bar = document.createElementNS("http://www.w3.org/2000/svg", "rect")
+      bar.setAttribute("x", padding.left)
+      bar.setAttribute("y", yPosition)
+      bar.setAttribute("width", barWidth)
+      bar.setAttribute("height", barHeight)
+      bar.setAttribute("fill", "#4CAF50")
+      bar.setAttribute("rx", "1")
+
+      // Create skill label
+      const skillLabel = document.createElementNS("http://www.w3.org/2000/svg", "text");
+      skillLabel.setAttribute("x", padding.left -10);
+      skillLabel.setAttribute("y", yPosition + barHeight / 2);
+      skillLabel.setAttribute("text-anchor", "end");
+      skillLabel.setAttribute("alignment-baseline", "middle");
+      skillLabel.setAttribute("fill", "#666");
+      skillLabel.setAttribute("font-size", "14");
+      skillLabel.textContent = skill.skill;
+
+      // Create percentage text
+      const percentageText = document.createElementNS("http://www.w3.org/2000/svg", "text");
+      percentageText.setAttribute("x", padding.left + barWidth + 5);
+      percentageText.setAttribute("y", yPosition + barHeight / 2);
+      percentageText.setAttribute("alignment-baseline", "middle");
+      percentageText.setAttribute("fill", "#4CAF50");
+      percentageText.setAttribute("font-size", "14");
+      percentageText.textContent = `${percentage.toFixed(1)}%`;
+
+      // Append elements
+      svg.appendChild(bar);
+      svg.appendChild(skillLabel);
+      svg.appendChild(percentageText);
+  });
+
+  return svg;
 }
