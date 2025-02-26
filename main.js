@@ -227,7 +227,7 @@ function renderHome(token) {
         <h4>User Xp</h4>
         <div id="user-xp">XP content here</div>
     </div>
-    <div>
+    <div class="graph">
         <div id="transactionsDiv">Transactions content here</div>
         <div id="xp-progression">XP Progress here</div>
     </div>

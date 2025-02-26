@@ -128,7 +128,13 @@ svg text {
         padding: 15px;
         max-height: 90vh;
     }
-
+    .graph{
+        display: flex;
+        flex-direction: column;
+        width: 90%;
+        padding: 10px;
+        overflow-y: auto; /* Ensures content is scrollable */
+    }
     .xp-graph {
         max-width: 100%;
     }
@@ -169,6 +175,13 @@ svg text {
         width: 70%;
         padding: 10px;
         max-height: 100vh;
+        overflow-y: auto; /* Ensures content is scrollable */
+    }
+    .graph{
+        display: flex;
+        flex-direction: column;
+        width: 70%;
+        padding: 10px;
         overflow-y: auto; /* Ensures content is scrollable */
     }
 
