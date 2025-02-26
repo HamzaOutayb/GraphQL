@@ -214,25 +214,22 @@ renderPage('/singin');
 // Home Page
 function renderHome(token) {
   app.innerHTML = `
-    <header>
-        <div class="Logout-button">
-          <button onclick="logout()">Logout</button>
-        </div>
-    </header>
+   <header>
+    <div class="Logout-button">
+        <button onclick="logout()">Logout</button>
+    </div>
+</header>
+
 <div class="container">
-    <span id="username"></span>
+    <span id="username">User</span>
+    <div id="userStats">User stats here</div>
     <div>
-    <div id="userStats"></div>
+        <h4>User Xp</h4>
+        <div id="user-xp">XP content here</div>
     </div>
-
     <div>
-    <h4>User Xp</h4>
-    <div id="user-xp"></div>
-    </div>
-
-    <div>
-    <div id="transactionsDiv"></div>
-    <div id="xp-progression"></div>
+        <div id="transactionsDiv">Transactions content here</div>
+        <div id="xp-progression">XP Progress here</div>
     </div>
 </div>
   `;

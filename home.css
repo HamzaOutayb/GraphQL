@@ -1,18 +1,40 @@
-body {
+/* General Styles */
+body { 
     font-family: Arial, sans-serif;
     margin: 0;
     padding: 0;
     background-color: #f4f4f4;
+    overflow-x: hidden; /* Prevent horizontal overflow */
 }
 
+/* Ensure responsive layout on mobile */
+* {
+    box-sizing: border-box; /* Prevents padding from affecting element width */
+}
+
+/* Main App Container */
+#app {
+    width: 100%; /* Ensures the app container takes up full width */
+    padding: 10px;
+    margin: 0 auto; /* Centers content horizontally */
+}
+
+/* Header Styling */
 header {
     display: flex;
     justify-content: flex-end;
     align-items: center;
     padding: 10px;
     background-color: #f9f9f9;
+    flex-wrap: wrap; /* Prevents content from overflowing */
+    width: 100%; /* Ensures it takes the full width */
 }
 
+header .Logout-button {
+    margin-left: 10px;
+}
+
+/* Logout Button */
 .Logout-button button {
     padding: 8px 16px;
     border: none;
@@ -21,27 +43,36 @@ header {
     font-size: 14px;
     cursor: pointer;
     border-radius: 4px;
+    transition: background-color 0.3s ease-in-out;
 }
 
 .Logout-button button:hover {
     background-color: #c9302c;
 }
 
+/* Main Container */
 .container {
+    display: flex;
+    flex-direction: column;
+    width: 90%;
     max-width: 800px;
     margin: 20px auto;
     padding: 20px;
     background-color: white;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
     border-radius: 8px;
+    overflow-y: auto; /* Scroll inside the container when needed */
+    max-height: 80vh; /* Ensures content does not overflow the screen */
 }
 
+/* User Information */
 #username {
     font-size: 20px;
     font-weight: bold;
     color: #333;
 }
 
+/* User Stats and XP Sections */
 #userStats, #user-xp, #transactionsDiv, #xp-progression {
     margin: 15px 0;
     padding: 15px;
@@ -50,23 +81,103 @@ header {
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
 }
 
+/* Headings */
 h4 {
     color: #4CAF50;
+    margin-bottom: 10px;
 }
 
-.user-xpara {
-    font-size: 18px;
-    font-weight: bold;
-    color: #4CAF50;
-}
-
+/* XP Graph */
 .xp-graph {
     width: 100%;
     max-width: 600px;
+    overflow-x: auto; /* Enables horizontal scrolling */
 }
 
+/* SVG Text */
 svg text {
     font-family: Arial, sans-serif;
     font-size: 12px;
     fill: #333;
+}
+
+/* --- Responsive Design --- */
+
+/* Tablet & Small Screens */
+@media screen and (max-width: 768px) {
+    #app {
+        padding: 5px; /* Reduce padding for smaller screens */
+    }
+
+    header {
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+    }
+
+    .Logout-button {
+        margin-top: 10px;
+        width: 100%;
+        text-align: center;
+    }
+
+    .container {
+        display: flex;
+        flex-direction: column;
+        width: 95%;
+        padding: 15px;
+        max-height: 90vh;
+    }
+
+    .xp-graph {
+        max-width: 100%;
+    }
+
+    /* Reduce padding inside the container */
+    .container {
+        padding: 10px;
+    }
+
+    /* Adjust font sizes for smaller devices */
+    #username {
+        font-size: 18px;
+    }
+
+    h4 {
+        font-size: 16px;
+    }
+}
+
+/* Mobile Screens */
+@media screen and (max-width: 480px) {
+    #app {
+        padding: 0; /* Full-width padding */
+    }
+
+    #username {
+        font-size: 16px; /* Smaller font size for mobile */
+    }
+
+    .Logout-button button {
+        font-size: 12px;
+        padding: 6px 12px;
+    }
+
+    .container {
+        display: flex;
+        flex-direction: column;
+        width: 70%;
+        padding: 10px;
+        max-height: 100vh;
+        overflow-y: auto; /* Ensures content is scrollable */
+    }
+
+    .xp-graph {
+        overflow-x: scroll; /* Enables scrolling if the graph is too wide */
+    }
+
+    /* Reduce padding further for mobile */
+    .container {
+        padding: 8px;
+    }
 }
