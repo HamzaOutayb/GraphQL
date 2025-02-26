@@ -1,0 +1,72 @@
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #f4f4f4;
+}
+
+header {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    padding: 10px;
+    background-color: #f9f9f9;
+}
+
+.Logout-button button {
+    padding: 8px 16px;
+    border: none;
+    background-color: #d9534f;
+    color: white;
+    font-size: 14px;
+    cursor: pointer;
+    border-radius: 4px;
+}
+
+.Logout-button button:hover {
+    background-color: #c9302c;
+}
+
+.container {
+    max-width: 800px;
+    margin: 20px auto;
+    padding: 20px;
+    background-color: white;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+}
+
+#username {
+    font-size: 20px;
+    font-weight: bold;
+    color: #333;
+}
+
+#userStats, #user-xp, #transactionsDiv, #xp-progression {
+    margin: 15px 0;
+    padding: 15px;
+    border-radius: 5px;
+    background: #f9f9f9;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+h4 {
+    color: #4CAF50;
+}
+
+.user-xpara {
+    font-size: 18px;
+    font-weight: bold;
+    color: #4CAF50;
+}
+
+.xp-graph {
+    width: 100%;
+    max-width: 600px;
+}
+
+svg text {
+    font-family: Arial, sans-serif;
+    font-size: 12px;
+    fill: #333;
+}

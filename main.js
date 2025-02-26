@@ -219,16 +219,22 @@ function renderHome(token) {
           <button onclick="logout()">Logout</button>
         </div>
     </header>
-     <span id="username"></span>
-    
+<div class="container">
+    <span id="username"></span>
+    <div>
     <div id="userStats"></div>
-    
+    </div>
+
+    <div>
     <h4>User Xp</h4>
     <div id="user-xp"></div>
+    </div>
+
     <div>
     <div id="transactionsDiv"></div>
     <div id="xp-progression"></div>
     </div>
+</div>
   `;
   try {
     showUserData(token)
