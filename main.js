@@ -1,25 +1,21 @@
 const body = document.querySelector('body');
 const app = document.getElementById('app');
 
-// Global variable to track authentication status
-let isAuthenticated = false;  // Initially, the user is not authenticated
-
-// Define available routes
+let isAuthenticated = false;
 const routes = [
   {
     path: '/',
     render: renderHome,
-    protected: true, // Home is a protected route
   },
   {
     path: '/signin',
-    render: renderSignin,
-    protected: false, // Sign In is not protected
+    render: rendersignin,
+    protected: false, 
   },
   {
     path: '/404',
     render: render404,
-    protected: false, // 404 page is not protected
+    protected: false,
   },
 ];
 
@@ -29,21 +25,16 @@ function navigateTo(path) {
   renderPage(path);
 }
 
-// Function to render a page based on the current path
 function renderPage(path) {
-  // Check if the route is protected and if the user is authenticated
   const route = routes.find(route => route.path === path);
 
   if (route) {
     if (route.protected && !isAuthenticated) {
-      // If the route is protected and the user is not authenticated, redirect to Sign In
       navigateTo('/signin');
     } else {
-      // Otherwise, render the corresponding route
       route.render();
     }
   } else {
-    // If path does not exist, render 404 page
     render404();
   }
 }
@@ -61,7 +52,7 @@ function getToken() {
 }
 
 // Sign In Page
-function renderSignin() {
+function rendersignin() {
   app.innerHTML = `
     <div class="container">
             
@@ -209,7 +200,7 @@ window.onpopstate = function () {
 };
 
 // Initial page load
-renderPage('/singin');
+renderPage('/signin');
 
 // Home Page
 function renderHome(token) {
@@ -242,8 +233,9 @@ function renderHome(token) {
 }
 
 function logout() {
+  isAuthenticated = false;
   localStorage.removeItem('jwt_token');
-  navigateTo("/singin")
+  navigateTo("/signin")
 }
 
 function createTheDashboard(userData) {
